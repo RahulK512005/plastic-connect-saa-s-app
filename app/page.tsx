@@ -63,7 +63,7 @@ export default function HomePage() {
           Connect Plastic Waste Collectors with Recyclers and Brands
         </h1>
         <p className="text-xl text-slate-600 mb-10 max-w-2xl mx-auto text-balance leading-relaxed">
-          Trade smarter with AI-powered grading, transparent pricing in Indian Rupees, and a seamless marketplace built for the recycling ecosystem.
+          Trade smarter with AI-powered grading, secure transactions and a seamless marketplace built for the recycling ecosystem.
         </p>
         <div className="flex items-center justify-center gap-4 flex-wrap">
           <Link href="/auth/signup">
@@ -93,7 +93,7 @@ export default function HomePage() {
             {
               icon: Shield,
               title: 'Secure Transactions',
-              description: 'Transparent pricing in Indian Rupees with verified buyer-seller connections.',
+              description: 'Transparent pricing with verified buyer-seller connections.',
             },
             {
               icon: TrendingUp,
@@ -233,3 +233,4 @@ export default function HomePage() {
     </div>
   )
 }
+
