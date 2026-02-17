@@ -1,6 +1,15 @@
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import type { User } from '@supabase/supabase-js'
+'use client'
+
+import { useState, useEffect, useCallback } from 'react'
+import {
+  dbGetCurrentSession,
+  dbSetSession,
+  dbClearSession,
+  dbGetUserByEmail,
+  dbCreateUser,
+  dbInit,
+  type User,
+} from '@/lib/mock-db'
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
@@ -8,62 +17,49 @@ export function useAuth() {
   const [userRole, setUserRole] = useState<string | null>(null)
 
   useEffect(() => {
-    const supabase = createClient()
-    
-    // Get initial user
-    const getUser = async () => {
-      try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser()
-        setUser(user)
-
-        if (user) {
-          // Fetch user profile to get role
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .single()
-
-          if (profile) {
-            setUserRole(profile.role)
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching user:', error)
-      } finally {
-        setLoading(false)
-      }
+    dbInit()
+    const session = dbGetCurrentSession()
+    if (session) {
+      setUser(session)
+      setUserRole(session.role)
     }
-
-    getUser()
-
-    // Subscribe to auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setUser(session?.user ?? null)
-
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .single()
-
-        if (profile) {
-          setUserRole(profile.role)
-        }
-      } else {
-        setUserRole(null)
-      }
-    })
-
-    return () => {
-      subscription?.unsubscribe()
-    }
+    setLoading(false)
   }, [])
 
-  return { user, loading, userRole }
+  const signUp = useCallback(
+    (data: { name: string; email: string; password: string; role: 'COLLECTOR' | 'BRAND' }) => {
+      try {
+        const newUser = dbCreateUser(data)
+        dbSetSession(newUser)
+        setUser(newUser)
+        setUserRole(newUser.role)
+        return { success: true, user: newUser }
+      } catch (err: any) {
+        return { success: false, error: err.message }
+      }
+    },
+    []
+  )
+
+  const signIn = useCallback((email: string, password: string) => {
+    const foundUser = dbGetUserByEmail(email)
+    if (!foundUser) {
+      return { success: false, error: 'Account not found. Please sign up.' }
+    }
+    if (foundUser.password !== password) {
+      return { success: false, error: 'Incorrect password. Please try again.' }
+    }
+    dbSetSession(foundUser)
+    setUser(foundUser)
+    setUserRole(foundUser.role)
+    return { success: true, user: foundUser }
+  }, [])
+
+  const signOut = useCallback(() => {
+    dbClearSession()
+    setUser(null)
+    setUserRole(null)
+  }, [])
+
+  return { user, loading, userRole, signUp, signIn, signOut }
 }

@@ -7,15 +7,13 @@ import { cn } from '@/lib/utils'
 import {
   LayoutDashboard,
   ShoppingCart,
-  FileText,
   TrendingUp,
-  Package,
-  Award,
-  Map,
   Settings,
   Leaf,
+  Upload,
   ListPlus,
   DollarSign,
+  Award,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -25,12 +23,10 @@ export default function AppSidebar() {
 
   const collectorMenuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
-    { icon: ListPlus, label: 'Create Listing', href: '/listings/create' },
-    { icon: TrendingUp, label: 'My Listings', href: '/listings' },
-    { icon: ShoppingCart, label: 'My Bids', href: '/bids' },
+    { icon: ShoppingCart, label: 'Marketplace', href: '/marketplace' },
+    { icon: Upload, label: 'Upload Material', href: '/upload' },
+    { icon: ListPlus, label: 'My Listings', href: '/listings' },
     { icon: DollarSign, label: 'Transactions', href: '/transactions' },
-    { icon: Award, label: 'Certificates', href: '/certificates' },
-    { icon: Map, label: 'Logistics', href: '/logistics' },
   ]
 
   const brandMenuItems = [
@@ -39,13 +35,12 @@ export default function AppSidebar() {
     { icon: TrendingUp, label: 'My Bids', href: '/bids' },
     { icon: DollarSign, label: 'Transactions', href: '/transactions' },
     { icon: Award, label: 'Certificates', href: '/certificates' },
-    { icon: Map, label: 'Logistics', href: '/logistics' },
   ]
 
-  const menuItems = userRole === 'COLLECTOR' ? collectorMenuItems : brandMenuItems
+  const menuItems = userRole === 'BRAND' ? brandMenuItems : collectorMenuItems
 
   return (
-    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col">
+    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0">
       {/* Logo */}
       <div className="p-6 border-b border-slate-200">
         <Link href="/dashboard" className="flex items-center gap-2">
@@ -57,11 +52,10 @@ export default function AppSidebar() {
       </div>
 
       {/* Menu Items */}
-      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {menuItems.map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
-          
           return (
             <Link key={item.href} href={item.href}>
               <Button
@@ -86,7 +80,12 @@ export default function AppSidebar() {
         <Link href="/settings">
           <Button
             variant="ghost"
-            className="w-full justify-start gap-3 h-10 text-slate-600 hover:bg-slate-100 hover:text-slate-900 rounded-lg"
+            className={cn(
+              'w-full justify-start gap-3 h-10 rounded-lg',
+              pathname === '/settings'
+                ? 'bg-green-50 text-green-700 font-medium'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+            )}
           >
             <Settings className="w-5 h-5" />
             <span>Settings</span>

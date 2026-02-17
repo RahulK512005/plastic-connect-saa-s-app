@@ -1,11 +1,10 @@
 'use client'
 
-import { useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Filter, X } from 'lucide-react'
+import { Filter } from 'lucide-react'
 import {
   Select,
   SelectContent,
@@ -14,31 +13,23 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-const materialTypes = [
-  'PET',
-  'HDPE',
-  'PVC',
-  'LDPE',
-  'PP',
-  'PS',
-  'Other',
-]
-
+const materialTypes = ['PET', 'HDPE', 'LDPE', 'PP', 'PS', 'Mixed']
 const grades = ['A', 'B', 'C']
 
-export default function MarketplaceFilters() {
-  const [filters, setFilters] = useState({
-    materialType: '',
-    grade: '',
-    minPrice: '',
-    maxPrice: '',
-    location: '',
-  })
+interface MarketplaceFiltersProps {
+  filters: {
+    materialType: string
+    grade: string
+    minPrice: string
+    maxPrice: string
+    location: string
+  }
+  onFilterChange: (filters: any) => void
+}
 
-  const [showFilters, setShowFilters] = useState(true)
-
+export default function MarketplaceFilters({ filters, onFilterChange }: MarketplaceFiltersProps) {
   const handleReset = () => {
-    setFilters({
+    onFilterChange({
       materialType: '',
       grade: '',
       minPrice: '',
@@ -50,96 +41,96 @@ export default function MarketplaceFilters() {
   const hasActiveFilters = Object.values(filters).some((v) => v !== '')
 
   return (
-    <Card className="p-6 border border-slate-200 sticky top-24">
-      <div className="flex items-center justify-between mb-6">
+    <Card className="p-5 border border-slate-200 sticky top-24 bg-white">
+      <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
-          <Filter className="w-5 h-5 text-slate-700" />
-          <h3 className="font-semibold text-slate-900">Filters</h3>
+          <Filter className="w-4 h-4 text-slate-700" />
+          <h3 className="font-semibold text-slate-900 text-sm">Filters</h3>
         </div>
         {hasActiveFilters && (
-          <button
-            onClick={handleReset}
-            className="text-xs text-green-600 hover:text-green-700 font-medium"
-          >
+          <button onClick={handleReset} className="text-xs text-green-600 hover:text-green-700 font-medium">
             Reset
           </button>
         )}
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-5">
         {/* Material Type */}
-        <div className="space-y-3">
-          <Label className="text-sm font-medium text-slate-700">Material Type</Label>
-          <Select value={filters.materialType} onValueChange={(v) => setFilters({ ...filters, materialType: v })}>
-            <SelectTrigger className="h-9">
+        <div className="space-y-2">
+          <Label className="text-xs font-medium text-slate-700">Material Type</Label>
+          <Select
+            value={filters.materialType || 'all'}
+            onValueChange={(v) => onFilterChange({ ...filters, materialType: v === 'all' ? '' : v })}
+          >
+            <SelectTrigger className="h-9 text-sm">
               <SelectValue placeholder="All materials" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All materials</SelectItem>
+              <SelectItem value="all">All materials</SelectItem>
               {materialTypes.map((type) => (
-                <SelectItem key={type} value={type}>
-                  {type}
-                </SelectItem>
+                <SelectItem key={type} value={type}>{type}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
         {/* Grade */}
-        <div className="space-y-3">
-          <Label className="text-sm font-medium text-slate-700">Grade</Label>
-          <Select value={filters.grade} onValueChange={(v) => setFilters({ ...filters, grade: v })}>
-            <SelectTrigger className="h-9">
+        <div className="space-y-2">
+          <Label className="text-xs font-medium text-slate-700">Grade</Label>
+          <Select
+            value={filters.grade || 'all'}
+            onValueChange={(v) => onFilterChange({ ...filters, grade: v === 'all' ? '' : v })}
+          >
+            <SelectTrigger className="h-9 text-sm">
               <SelectValue placeholder="All grades" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All grades</SelectItem>
+              <SelectItem value="all">All grades</SelectItem>
               {grades.map((grade) => (
-                <SelectItem key={grade} value={grade}>
-                  Grade {grade}
-                </SelectItem>
+                <SelectItem key={grade} value={grade}>Grade {grade}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
         {/* Price Range */}
-        <div className="space-y-3">
-          <Label className="text-sm font-medium text-slate-700">Price Range (per kg)</Label>
-          <div className="space-y-2">
+        <div className="space-y-2">
+          <Label className="text-xs font-medium text-slate-700">{'Price Range (\u20B9/kg)'}</Label>
+          <div className="flex gap-2">
             <Input
               type="number"
-              placeholder="Min price"
+              placeholder="Min"
               value={filters.minPrice}
-              onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })}
-              className="h-9"
+              onChange={(e) => onFilterChange({ ...filters, minPrice: e.target.value })}
+              className="h-9 text-sm"
             />
             <Input
               type="number"
-              placeholder="Max price"
+              placeholder="Max"
               value={filters.maxPrice}
-              onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })}
-              className="h-9"
+              onChange={(e) => onFilterChange({ ...filters, maxPrice: e.target.value })}
+              className="h-9 text-sm"
             />
           </div>
         </div>
 
         {/* Location */}
-        <div className="space-y-3">
-          <Label className="text-sm font-medium text-slate-700">Location</Label>
+        <div className="space-y-2">
+          <Label className="text-xs font-medium text-slate-700">Location</Label>
           <Input
             type="text"
-            placeholder="City or region"
+            placeholder="City or state"
             value={filters.location}
-            onChange={(e) => setFilters({ ...filters, location: e.target.value })}
-            className="h-9"
+            onChange={(e) => onFilterChange({ ...filters, location: e.target.value })}
+            className="h-9 text-sm"
           />
         </div>
 
-        {/* Apply Button */}
-        <Button className="w-full bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg h-10">
-          Apply Filters
-        </Button>
+        {hasActiveFilters && (
+          <Button onClick={handleReset} variant="outline" className="w-full h-9 text-sm">
+            Clear All Filters
+          </Button>
+        )}
       </div>
     </Card>
   )
