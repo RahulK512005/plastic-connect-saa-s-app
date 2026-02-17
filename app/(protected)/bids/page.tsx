@@ -1,66 +1,25 @@
-import { createClient } from '@/lib/supabase/server'
-import { getUser } from '@/app/actions/auth'
+'use client'
+
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import { useAuth } from '@/hooks/use-auth'
+import {
+  dbGetBidsByBrand,
+  dbGetBidsForCollectorListings,
+  dbGetListingById,
+  formatPricePerKg,
+  formatINR,
+} from '@/lib/mock-db'
 
-async function getUserBids(userId: string) {
-  const supabase = await createClient()
-
-  const { data } = await supabase
-    .from('bids')
-    .select(`
-      id,
-      price_per_kg,
-      total_cost,
-      status,
-      created_at,
-      listings(id, material_type, weight_kg, asking_price)
-    `)
-    .eq('brand_id', userId)
-    .order('created_at', { ascending: false })
-
-  return data || []
-}
-
-async function getUserListingBids(userId: string) {
-  const supabase = await createClient()
-
-  const { data } = await supabase
-    .from('bids')
-    .select(`
-      id,
-      price_per_kg,
-      total_cost,
-      status,
-      created_at,
-      listings(id, material_type, weight_kg)
-    `)
-    .in('listing_id', (
-      await supabase
-        .from('listings')
-        .select('id')
-        .eq('collector_id', userId)
-    ).data?.map((l: any) => l.id) || [])
-    .order('created_at', { ascending: false })
-
-  return data || []
-}
-
-export default async function BidsPage() {
-  const user = await getUser()
-
+export default function BidsPage() {
+  const { user, userRole } = useAuth()
   if (!user) return null
 
-  const supabase = await createClient()
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  const isBrand = profile?.role === 'BRAND'
-  const bids = isBrand ? await getUserBids(user.id) : await getUserListingBids(user.id)
+  const isBrand = userRole === 'BRAND'
+  const bids = isBrand
+    ? dbGetBidsByBrand(user.id)
+    : dbGetBidsForCollectorListings(user.id)
 
   return (
     <div className="space-y-6">
@@ -77,80 +36,99 @@ export default async function BidsPage() {
       </div>
 
       {/* Bids Table */}
-      <Card className="border border-slate-200 overflow-hidden">
-        <div className="p-6 border-b border-slate-200">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-slate-900">
-              {bids.length} {bids.length === 1 ? 'Bid' : 'Bids'}
-            </h2>
-          </div>
+      <Card className="border border-slate-200 bg-white overflow-hidden">
+        <div className="p-5 border-b border-slate-200">
+          <h2 className="text-lg font-semibold text-slate-900">
+            {bids.length} {bids.length === 1 ? 'Bid' : 'Bids'}
+          </h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">
-                  Material
+                <th className="px-5 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  {isBrand ? 'Listing' : 'Brand'}
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">
-                  Weight
+                <th className="px-5 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  Price/kg
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">
-                  Price
+                <th className="px-5 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  Total
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">
+                <th className="px-5 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">
+                <th className="px-5 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-slate-900">
+                <th className="px-5 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
                   Action
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200">
+            <tbody className="divide-y divide-slate-100">
               {bids.length > 0 ? (
-                bids.map((bid: any) => (
-                  <tr key={bid.id} className="hover:bg-slate-50">
-                    <td className="px-6 py-4 text-slate-900 font-medium">
-                      {bid.listings?.material_type || 'N/A'}
-                    </td>
-                    <td className="px-6 py-4 text-slate-700">
-                      {bid.listings?.weight_kg} kg
-                    </td>
-                    <td className="px-6 py-4 text-green-600 font-bold">
-                      ${bid.price_per_kg.toFixed(2)}/kg
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          bid.status === 'PENDING'
-                            ? 'bg-yellow-50 text-yellow-700'
-                            : bid.status === 'ACCEPTED'
-                              ? 'bg-green-50 text-green-700'
-                              : 'bg-slate-50 text-slate-700'
-                        }`}
-                      >
-                        {bid.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-slate-600 text-sm">
-                      {new Date(bid.created_at).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <Link href={`/listings/${bid.listings?.id}`}>
-                        <Button variant="outline" size="sm">
-                          View
-                        </Button>
-                      </Link>
-                    </td>
-                  </tr>
-                ))
+                bids.map((bid) => {
+                  const listing = dbGetListingById(bid.listingId)
+                  return (
+                    <tr key={bid.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-5 py-4">
+                        <p className="text-sm font-medium text-slate-900">
+                          {isBrand
+                            ? listing
+                              ? `${listing.materialType} - ${listing.weightKg} kg`
+                              : 'Unknown Listing'
+                            : bid.brandName}
+                        </p>
+                      </td>
+                      <td className="px-5 py-4 text-sm font-bold text-green-600">
+                        {formatPricePerKg(bid.pricePerKg)}/kg
+                      </td>
+                      <td className="px-5 py-4 text-sm font-semibold text-slate-900">
+                        {formatINR(bid.totalCost)}
+                      </td>
+                      <td className="px-5 py-4">
+                        <span
+                          className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                            bid.status === 'PENDING'
+                              ? 'bg-yellow-50 text-yellow-700'
+                              : bid.status === 'ACCEPTED'
+                                ? 'bg-green-50 text-green-700'
+                                : 'bg-red-50 text-red-700'
+                          }`}
+                        >
+                          {bid.status}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4 text-xs text-slate-500">
+                        {new Date(bid.createdAt).toLocaleDateString('en-IN')}
+                      </td>
+                      <td className="px-5 py-4 text-right">
+                        <Link href={`/listings/${bid.listingId}`}>
+                          <Button variant="outline" size="sm">
+                            View
+                          </Button>
+                        </Link>
+                      </td>
+                    </tr>
+                  )
+                })
               ) : (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center">
-                    <p className="text-slate-600">No bids yet</p>
+                  <td colSpan={6} className="px-5 py-14 text-center">
+                    <p className="text-slate-500">No bids yet</p>
+                    <p className="text-sm text-slate-400 mt-1">
+                      {isBrand
+                        ? 'Browse the marketplace to place your first bid'
+                        : 'Bids will appear here when brands bid on your listings'}
+                    </p>
+                    {isBrand && (
+                      <Link href="/marketplace">
+                        <Button className="mt-4 bg-green-600 hover:bg-green-700 text-white">
+                          Browse Marketplace
+                        </Button>
+                      </Link>
+                    )}
                   </td>
                 </tr>
               )}
