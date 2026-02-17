@@ -93,7 +93,7 @@ export default function HomePage() {
             {
               icon: Shield,
               title: 'Secure Transactions',
-              description: 'Transparent pricing with verified buyer-seller connections.',
+              description: 'Built-in escrow protection, encrypted payments, and buyer/seller fund guarantees for peace of mind.',
             },
             {
               icon: TrendingUp,
