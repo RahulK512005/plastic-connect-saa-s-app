@@ -1,0 +1,382 @@
+{
+  "database": "plastic_connect",
+  "collections": [
+    {
+      "name": "users",
+      "schema": {
+        "validator": {
+          "$jsonSchema": {
+            "bsonType": "object",
+            "required": ["id", "email", "password", "name", "role", "createdAt"],
+            "properties": {
+              "_id": { "bsonType": "objectId" },
+              "id": { "bsonType": "string", "description": "Unique UUID for user" },
+              "name": { "bsonType": "string" },
+              "email": { "bsonType": "string" },
+              "password": { "bsonType": "string", "description": "bcrypt hashed password" },
+              "role": { "enum": ["COLLECTOR", "BRAND"] },
+              "company": { "bsonType": "string" },
+              "phone": { "bsonType": "string" },
+              "createdAt": { "bsonType": "date" }
+            }
+          }
+        }
+      },
+      "indexes": [
+        { "key": { "id": 1 }, "unique": true },
+        { "key": { "email": 1 }, "unique": true }
+      ],
+      "documents": [
+        {
+          "id": "user-001",
+          "name": "Rajesh Kumar",
+          "email": "collector@example.com",
+          "password": "$2b$10$7N/WqZE8QFG3l7g4k8Z9X.8F9G9Y8Z0A1B2C3D4E5F6G7H8I9J0K",
+          "role": "COLLECTOR",
+          "company": "Kumar Waste Solutions",
+          "phone": "+91 98765 43210",
+          "createdAt": { "$date": "2025-01-15T10:00:00Z" }
+        },
+        {
+          "id": "user-002",
+          "name": "GreenCycle Industries",
+          "email": "brand@example.com",
+          "password": "$2b$10$7N/WqZE8QFG3l7g4k8Z9X.8F9G9Y8Z0A1B2C3D4E5F6G7H8I9J0K",
+          "role": "BRAND",
+          "company": "GreenCycle Industries",
+          "phone": "+91 98765 43211",
+          "createdAt": { "$date": "2025-01-15T10:00:00Z" }
+        },
+        {
+          "id": "user-003",
+          "name": "Priya Sharma",
+          "email": "collector2@example.com",
+          "password": "$2b$10$7N/WqZE8QFG3l7g4k8Z9X.8F9G9Y8Z0A1B2C3D4E5F6G7H8I9J0K",
+          "role": "COLLECTOR",
+          "company": "Sharma Recycling",
+          "phone": "+91 98765 43212",
+          "createdAt": { "$date": "2025-01-20T10:00:00Z" }
+        },
+        {
+          "id": "user-004",
+          "name": "EcoPlast Ltd",
+          "email": "brand2@example.com",
+          "password": "$2b$10$7N/WqZE8QFG3l7g4k8Z9X.8F9G9Y8Z0A1B2C3D4E5F6G7H8I9J0K",
+          "role": "BRAND",
+          "company": "EcoPlast Ltd",
+          "phone": "+91 98765 43213",
+          "createdAt": { "$date": "2025-01-20T10:00:00Z" }
+        }
+      ]
+    },
+    {
+      "name": "listings",
+      "schema": {
+        "validator": {
+          "$jsonSchema": {
+            "bsonType": "object",
+            "required": ["id", "collectorId", "collectorName", "materialType", "weightKg", "purityPercent", "contaminationPercent", "grade", "pricePerKg", "location", "status", "createdAt"],
+            "properties": {
+              "_id": { "bsonType": "objectId" },
+              "id": { "bsonType": "string", "description": "Unique UUID for listing" },
+              "collectorId": { "bsonType": "string" },
+              "collectorName": { "bsonType": "string" },
+              "materialType": { "enum": ["PET", "HDPE", "LDPE", "Mixed", "PP", "PS"] },
+              "weightKg": { "bsonType": "number" },
+              "purityPercent": { "bsonType": "number", "minimum": 0, "maximum": 100 },
+              "contaminationPercent": { "bsonType": "number", "minimum": 0, "maximum": 100 },
+              "grade": { "enum": ["A", "B", "C"] },
+              "pricePerKg": { "bsonType": "number" },
+              "location": { "bsonType": "string" },
+              "description": { "bsonType": "string" },
+              "imageUrl": { "bsonType": "string" },
+              "status": { "enum": ["ACTIVE", "SOLD", "CANCELLED"] },
+              "highestBidAmount": { "bsonType": "number" },
+              "createdAt": { "bsonType": "date" }
+            }
+          }
+        }
+      },
+      "indexes": [
+        { "key": { "id": 1 }, "unique": true },
+        { "key": { "collectorId": 1 } },
+        { "key": { "status": 1 } },
+        { "key": { "materialType": 1 } },
+        { "key": { "grade": 1 } }
+      ],
+      "documents": [
+        {
+          "id": "lst-001",
+          "collectorId": "user-001",
+          "collectorName": "Rajesh Kumar",
+          "materialType": "PET",
+          "weightKg": 500,
+          "purityPercent": 96,
+          "contaminationPercent": 4,
+          "grade": "A",
+          "pricePerKg": 42,
+          "location": "Mumbai, Maharashtra",
+          "description": "Clean PET bottles, sorted and baled",
+          "imageUrl": "/images/pet-bottles.jpg",
+          "status": "ACTIVE",
+          "highestBidAmount": 44,
+          "createdAt": { "$date": "2025-12-01T10:00:00Z" }
+        },
+        {
+          "id": "lst-002",
+          "collectorId": "user-001",
+          "collectorName": "Rajesh Kumar",
+          "materialType": "HDPE",
+          "weightKg": 300,
+          "purityPercent": 92,
+          "contaminationPercent": 8,
+          "grade": "A",
+          "pricePerKg": 55,
+          "location": "Delhi, NCR",
+          "description": "HDPE containers and drums",
+          "imageUrl": "/images/hdpe-containers.jpg",
+          "status": "ACTIVE",
+          "createdAt": { "$date": "2025-12-05T14:30:00Z" }
+        },
+        {
+          "id": "lst-003",
+          "collectorId": "user-003",
+          "collectorName": "Priya Sharma",
+          "materialType": "PET",
+          "weightKg": 250,
+          "purityPercent": 88,
+          "contaminationPercent": 12,
+          "grade": "B",
+          "pricePerKg": 38,
+          "location": "Bangalore, Karnataka",
+          "description": "Used PET bottles mixed colors",
+          "imageUrl": "/images/pet-mixed.jpg",
+          "status": "ACTIVE",
+          "highestBidAmount": 40,
+          "createdAt": { "$date": "2025-12-10T09:15:00Z" }
+        },
+        {
+          "id": "lst-004",
+          "collectorId": "user-001",
+          "collectorName": "Rajesh Kumar",
+          "materialType": "Mixed",
+          "weightKg": 1000,
+          "purityPercent": 75,
+          "contaminationPercent": 25,
+          "grade": "C",
+          "pricePerKg": 25,
+          "location": "Mumbai, Maharashtra",
+          "description": "Mixed plastic waste assortment",
+          "imageUrl": "/images/mixed-plastic.jpg",
+          "status": "SOLD",
+          "createdAt": { "$date": "2025-11-15T08:00:00Z" }
+        }
+      ]
+    },
+    {
+      "name": "bids",
+      "schema": {
+        "validator": {
+          "$jsonSchema": {
+            "bsonType": "object",
+            "required": ["id", "listingId", "brandId", "brandName", "pricePerKg", "totalCost", "status", "createdAt"],
+            "properties": {
+              "_id": { "bsonType": "objectId" },
+              "id": { "bsonType": "string", "description": "Unique UUID for bid" },
+              "listingId": { "bsonType": "string" },
+              "brandId": { "bsonType": "string" },
+              "brandName": { "bsonType": "string" },
+              "pricePerKg": { "bsonType": "number" },
+              "totalCost": { "bsonType": "number" },
+              "status": { "enum": ["PENDING", "ACCEPTED", "REJECTED"] },
+              "createdAt": { "bsonType": "date" }
+            }
+          }
+        }
+      },
+      "indexes": [
+        { "key": { "id": 1 }, "unique": true },
+        { "key": { "listingId": 1 } },
+        { "key": { "brandId": 1 } }
+      ],
+      "documents": [
+        {
+          "id": "bid-001",
+          "listingId": "lst-001",
+          "brandId": "user-002",
+          "brandName": "GreenCycle Industries",
+          "pricePerKg": 44,
+          "totalCost": 22000,
+          "status": "PENDING",
+          "createdAt": { "$date": "2025-12-02T11:00:00Z" }
+        },
+        {
+          "id": "bid-002",
+          "listingId": "lst-001",
+          "brandId": "user-004",
+          "brandName": "EcoPlast Ltd",
+          "pricePerKg": 43,
+          "totalCost": 21500,
+          "status": "PENDING",
+          "createdAt": { "$date": "2025-12-02T12:30:00Z" }
+        },
+        {
+          "id": "bid-003",
+          "listingId": "lst-003",
+          "brandId": "user-002",
+          "brandName": "GreenCycle Industries",
+          "pricePerKg": 40,
+          "totalCost": 10000,
+          "status": "ACCEPTED",
+          "createdAt": { "$date": "2025-12-11T10:00:00Z" }
+        }
+      ]
+    },
+    {
+      "name": "transactions",
+      "schema": {
+        "validator": {
+          "$jsonSchema": {
+            "bsonType": "object",
+            "required": ["id", "listingId", "collectorId", "brandId", "materialType", "weightKg", "pricePerKg", "totalAmount", "status", "buyerName", "sellerName", "createdAt"],
+            "properties": {
+              "_id": { "bsonType": "objectId" },
+              "id": { "bsonType": "string", "description": "Unique UUID for transaction" },
+              "listingId": { "bsonType": "string" },
+              "collectorId": { "bsonType": "string" },
+              "brandId": { "bsonType": "string" },
+              "materialType": { "bsonType": "string" },
+              "weightKg": { "bsonType": "number" },
+              "pricePerKg": { "bsonType": "number" },
+              "totalAmount": { "bsonType": "number" },
+              "status": { "enum": ["PENDING", "PAYMENT_PENDING", "IN_PROGRESS", "COMPLETED"] },
+              "buyerName": { "bsonType": "string" },
+              "sellerName": { "bsonType": "string" },
+              "createdAt": { "bsonType": "date" }
+            }
+          }
+        }
+      },
+      "indexes": [
+        { "key": { "id": 1 }, "unique": true },
+        { "key": { "collectorId": 1 } },
+        { "key": { "brandId": 1 } },
+        { "key": { "status": 1 } }
+      ],
+      "documents": [
+        {
+          "id": "txn-001",
+          "listingId": "lst-004",
+          "collectorId": "user-001",
+          "brandId": "user-002",
+          "materialType": "Mixed",
+          "weightKg": 1000,
+          "pricePerKg": 25,
+          "totalAmount": 25000,
+          "status": "COMPLETED",
+          "buyerName": "GreenCycle Industries",
+          "sellerName": "Rajesh Kumar",
+          "createdAt": { "$date": "2025-11-20T10:00:00Z" }
+        },
+        {
+          "id": "txn-002",
+          "listingId": "lst-001",
+          "collectorId": "user-001",
+          "brandId": "user-002",
+          "materialType": "PET",
+          "weightKg": 500,
+          "pricePerKg": 42,
+          "totalAmount": 21000,
+          "status": "IN_PROGRESS",
+          "buyerName": "GreenCycle Industries",
+          "sellerName": "Rajesh Kumar",
+          "createdAt": { "$date": "2025-12-02T11:00:00Z" }
+        },
+        {
+          "id": "txn-003",
+          "listingId": "lst-003",
+          "collectorId": "user-003",
+          "brandId": "user-002",
+          "materialType": "PET",
+          "weightKg": 250,
+          "pricePerKg": 40,
+          "totalAmount": 10000,
+          "status": "PENDING",
+          "buyerName": "GreenCycle Industries",
+          "sellerName": "Priya Sharma",
+          "createdAt": { "$date": "2025-12-11T10:00:00Z" }
+        }
+      ]
+    },
+    {
+      "name": "ai_grading_results",
+      "schema": {
+        "validator": {
+          "$jsonSchema": {
+            "bsonType": "object",
+            "required": ["id", "userId", "materialType", "purityPercent", "contaminationPercent", "weightKg", "grade", "confidence", "createdAt"],
+            "properties": {
+              "_id": { "bsonType": "objectId" },
+              "id": { "bsonType": "string", "description": "Unique UUID for grading result" },
+              "userId": { "bsonType": "string" },
+              "materialType": { "bsonType": "string" },
+              "purityPercent": { "bsonType": "number", "minimum": 0, "maximum": 100 },
+              "contaminationPercent": { "bsonType": "number", "minimum": 0, "maximum": 100 },
+              "weightKg": { "bsonType": "number" },
+              "grade": { "enum": ["A", "B", "C"] },
+              "confidence": { "bsonType": "number", "minimum": 50, "maximum": 100 },
+              "verified": { "bsonType": "bool" },
+              "imageUrl": { "bsonType": "string" },
+              "createdAt": { "bsonType": "date" }
+            }
+          }
+        }
+      },
+      "indexes": [
+        { "key": { "id": 1 }, "unique": true },
+        { "key": { "userId": 1 } }
+      ],
+      "documents": [
+        {
+          "id": "grade-001",
+          "userId": "user-001",
+          "materialType": "PET",
+          "purityPercent": 96,
+          "contaminationPercent": 4,
+          "weightKg": 500,
+          "grade": "A",
+          "confidence": 94,
+          "verified": true,
+          "imageUrl": "/images/grade-scan-001.jpg",
+          "createdAt": { "$date": "2025-12-01T09:30:00Z" }
+        },
+        {
+          "id": "grade-002",
+          "userId": "user-001",
+          "materialType": "HDPE",
+          "purityPercent": 92,
+          "contaminationPercent": 8,
+          "weightKg": 300,
+          "grade": "A",
+          "confidence": 91,
+          "verified": true,
+          "imageUrl": "/images/grade-scan-002.jpg",
+          "createdAt": { "$date": "2025-12-05T14:00:00Z" }
+        },
+        {
+          "id": "grade-003",
+          "userId": "user-003",
+          "materialType": "PET",
+          "purityPercent": 88,
+          "contaminationPercent": 12,
+          "weightKg": 250,
+          "grade": "B",
+          "confidence": 87,
+          "verified": true,
+          "imageUrl": "/images/grade-scan-003.jpg",
+          "createdAt": { "$date": "2025-12-10T09:00:00Z" }
+        }
+      ]
+    }
+  ]
+}
