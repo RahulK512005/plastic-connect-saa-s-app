@@ -27,21 +27,25 @@ export default function ProtectedLayout({
 
   if (!mounted || loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600" />
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
       </div>
     )
   }
 
-  if (!user) return null
+  if (!user) {
+    return null
+  }
 
   return (
     <div className="flex h-screen bg-slate-50">
       <AppSidebar />
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col">
         <AppHeader />
         <main className="flex-1 overflow-auto">
-          <div className="max-w-7xl mx-auto p-6">{children}</div>
+          <div className="container mx-auto p-6">
+            {children}
+          </div>
         </main>
       </div>
     </div>

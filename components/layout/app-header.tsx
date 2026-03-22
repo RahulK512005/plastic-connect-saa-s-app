@@ -1,9 +1,9 @@
 'use client'
 
 import { useAuth } from '@/hooks/use-auth'
-import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Bell, LogOut } from 'lucide-react'
+import { signOut } from '@/app/actions/auth'
+import { Bell, Settings, LogOut } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,70 +12,68 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 
 export default function AppHeader() {
-  const { user, userRole, signOut } = useAuth()
-  const router = useRouter()
+  const { user } = useAuth()
 
-  const displayName = user?.name || user?.email?.split('@')[0] || 'User'
-  const initials = displayName
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
+  const userInitials = user?.email
+    ?.split('@')[0]
+    .split('')
+    .map((c) => c.toUpperCase())
     .slice(0, 2)
-
-  const handleSignOut = () => {
-    signOut()
-    router.push('/auth/login')
-  }
+    .join('') || 'U'
 
   return (
     <header className="border-b border-slate-200 bg-white">
-      <div className="flex items-center justify-between px-6 py-3">
-        <div className="flex items-center gap-3">
-          <Badge variant="outline" className="text-xs font-medium border-green-200 text-green-700 bg-green-50">
-            {userRole === 'BRAND' ? 'Brand' : 'Collector'}
-          </Badge>
-        </div>
-
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between px-6 py-4">
+        <div className="flex-1" />
+        
+        <div className="flex items-center gap-4">
+          {/* Notifications */}
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 text-slate-600 hover:text-slate-900 hover:bg-slate-100 relative"
+            className="h-10 w-10 text-slate-600 hover:text-slate-900 hover:bg-slate-100"
           >
-            <Bell className="w-4 h-4" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-green-500 rounded-full" />
+            <Bell className="w-5 h-5" />
           </Button>
 
+          {/* Settings */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-10 w-10 text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+          >
+            <Settings className="w-5 h-5" />
+          </Button>
+
+          {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-9 px-2 gap-2">
-                <Avatar className="h-7 w-7 bg-green-100">
+              <Button variant="ghost" className="h-10 px-2 gap-2">
+                <Avatar className="h-8 w-8 bg-green-100">
                   <AvatarFallback className="text-green-700 text-xs font-semibold">
-                    {initials}
+                    {userInitials}
                   </AvatarFallback>
                 </Avatar>
                 <span className="hidden sm:inline text-sm font-medium text-slate-900">
-                  {displayName}
+                  {user?.email?.split('@')[0]}
                 </span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <div className="px-2 py-1.5">
-                <p className="text-sm font-medium text-slate-900">{displayName}</p>
-                <p className="text-xs text-slate-500">{user?.email}</p>
-              </div>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => router.push('/settings')} className="cursor-pointer">
+              <DropdownMenuItem className="cursor-pointer">
                 Profile Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                Account
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
-                onClick={handleSignOut}
+                onClick={async () => {
+                  await signOut()
+                }}
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out

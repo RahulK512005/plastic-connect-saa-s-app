@@ -11,10 +11,10 @@ import { useAuth } from '@/hooks/use-auth'
 export default function SettingsPage() {
   const { user } = useAuth()
   const [formData, setFormData] = useState({
-    fullName: user?.name || '',
+    fullName: user?.email?.split('@')[0] || '',
     email: user?.email || '',
-    company: user?.company || '',
-    phone: user?.phone || '',
+    company: '',
+    phone: '',
   })
   const [saving, setSaving] = useState(false)
 
@@ -88,7 +88,7 @@ export default function SettingsPage() {
               type="tel"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              placeholder="+91 98765 43210"
+              placeholder="+1 (555) 000-0000"
               className="h-10"
             />
           </div>

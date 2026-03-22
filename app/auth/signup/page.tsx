@@ -9,16 +9,15 @@ import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
 import { AlertCircle, Leaf } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { useAuth } from '@/hooks/use-auth'
+import { signUp } from '@/app/actions/auth'
 
 export default function SignUpPage() {
   const router = useRouter()
-  const { signUp } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [role, setRole] = useState<'COLLECTOR' | 'BRAND'>('COLLECTOR')
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setLoading(true)
     setError(null)
@@ -35,39 +34,33 @@ export default function SignUpPage() {
       return
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters')
+    const result = await signUp(email, password, name, role)
+
+    if (result.error) {
+      setError(result.error)
       setLoading(false)
       return
     }
 
-    const result = signUp({ name, email, password, role })
-
-    if (!result.success) {
-      setError(result.error || 'Signup failed')
-      setLoading(false)
-      return
-    }
-
-    // Auto-login and redirect to dashboard immediately
+    // Redirect directly to dashboard after successful signup
     router.push('/dashboard')
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="mb-8 text-center">
-          <Link href="/" className="inline-flex items-center gap-2 mb-4">
+          <div className="flex items-center justify-center gap-2 mb-4">
             <div className="p-2 rounded-lg bg-green-100">
               <Leaf className="w-6 h-6 text-green-600" />
             </div>
             <h1 className="text-2xl font-bold text-slate-900">PlasticConnect</h1>
-          </Link>
+          </div>
           <p className="text-slate-600">Join the sustainable plastic marketplace</p>
         </div>
 
-        <Card className="p-6 shadow-xl border border-slate-200/60 bg-white">
+        <Card className="p-6 shadow-xl border border-slate-200/60">
           <h2 className="text-xl font-semibold text-slate-900 mb-6">Create Account</h2>
 
           {error && (
@@ -102,31 +95,76 @@ export default function SignUpPage() {
                       : 'border-slate-200 bg-white text-slate-600 hover:border-green-200'
                   }`}
                 >
-                  Brand / Recycler
+                  Brand
                 </button>
               </div>
             </div>
 
+            {/* Name */}
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-slate-700 font-medium">Full Name</Label>
-              <Input id="name" name="name" type="text" placeholder="Your full name" required disabled={loading} className="h-10" />
+              <Label htmlFor="name" className="text-slate-700 font-medium">
+                Full Name
+              </Label>
+              <Input
+                id="name"
+                name="name"
+                type="text"
+                placeholder="John Doe"
+                required
+                disabled={loading}
+                className="h-10"
+              />
             </div>
 
+            {/* Email */}
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-slate-700 font-medium">Email</Label>
-              <Input id="email" name="email" type="email" placeholder="you@example.com" required disabled={loading} className="h-10" />
+              <Label htmlFor="email" className="text-slate-700 font-medium">
+                Email
+              </Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="you@example.com"
+                required
+                disabled={loading}
+                className="h-10"
+              />
             </div>
 
+            {/* Password */}
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-slate-700 font-medium">Password</Label>
-              <Input id="password" name="password" type="password" placeholder="Min 6 characters" required disabled={loading} className="h-10" />
+              <Label htmlFor="password" className="text-slate-700 font-medium">
+                Password
+              </Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="••••••••"
+                required
+                disabled={loading}
+                className="h-10"
+              />
             </div>
 
+            {/* Confirm Password */}
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-slate-700 font-medium">Confirm Password</Label>
-              <Input id="confirmPassword" name="confirmPassword" type="password" placeholder="Confirm password" required disabled={loading} className="h-10" />
+              <Label htmlFor="confirmPassword" className="text-slate-700 font-medium">
+                Confirm Password
+              </Label>
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                placeholder="••••••••"
+                required
+                disabled={loading}
+                className="h-10"
+              />
             </div>
 
+            {/* Submit Button */}
             <Button
               type="submit"
               disabled={loading}
@@ -144,6 +182,7 @@ export default function SignUpPage() {
           </p>
         </Card>
 
+        {/* Footer */}
         <p className="text-center text-xs text-slate-500 mt-8">
           By signing up, you agree to our Terms of Service and Privacy Policy
         </p>
