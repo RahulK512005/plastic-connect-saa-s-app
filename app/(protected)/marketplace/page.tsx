@@ -77,7 +77,7 @@ export default function MarketplacePage() {
           <div className="flex-1 overflow-y-auto p-5">
             <MarketplaceFilters
               filters={filters}
-              onFilterChange={(f) => { setFilters(f); }}
+              onFilterChange={setFilters}
             />
           </div>
           <div className="p-4 border-t border-slate-200">
