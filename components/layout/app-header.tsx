@@ -3,7 +3,7 @@
 import { useAuth } from '@/hooks/use-auth'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Bell, LogOut } from 'lucide-react'
+import { Bell, LogOut, Menu } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +14,11 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 
-export default function AppHeader() {
+interface AppHeaderProps {
+  onMenuClick?: () => void
+}
+
+export default function AppHeader({ onMenuClick }: AppHeaderProps) {
   const { user, userRole, signOut } = useAuth()
   const router = useRouter()
 
@@ -33,8 +37,18 @@ export default function AppHeader() {
 
   return (
     <header className="border-b border-slate-200 bg-white">
-      <div className="flex items-center justify-between px-6 py-3">
+      <div className="flex items-center justify-between px-4 sm:px-6 py-3">
         <div className="flex items-center gap-3">
+          {/* Hamburger — only visible on mobile */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 lg:hidden text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            onClick={onMenuClick}
+            aria-label="Open navigation menu"
+          >
+            <Menu className="w-5 h-5" />
+          </Button>
           <Badge variant="outline" className="text-xs font-medium border-green-200 text-green-700 bg-green-50">
             {userRole === 'BRAND' ? 'Brand' : 'Collector'}
           </Badge>

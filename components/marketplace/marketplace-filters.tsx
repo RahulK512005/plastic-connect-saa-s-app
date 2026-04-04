@@ -41,7 +41,7 @@ export default function MarketplaceFilters({ filters, onFilterChange }: Marketpl
   const hasActiveFilters = Object.values(filters).some((v) => v !== '')
 
   return (
-    <Card className="p-5 border border-slate-200 sticky top-24 bg-white">
+    <Card className="p-5 border-slate-200 lg:sticky lg:top-24 bg-white">
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-slate-700" />
