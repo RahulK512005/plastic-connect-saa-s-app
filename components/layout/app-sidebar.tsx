@@ -16,8 +16,14 @@ import {
   Award,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Sheet, SheetContent } from '@/components/ui/sheet'
 
-export default function AppSidebar() {
+interface AppSidebarProps {
+  mobileOpen?: boolean
+  onMobileClose?: () => void
+}
+
+function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
   const pathname = usePathname()
   const { userRole } = useAuth()
 
@@ -40,10 +46,10 @@ export default function AppSidebar() {
   const menuItems = userRole === 'BRAND' ? brandMenuItems : collectorMenuItems
 
   return (
-    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0">
+    <>
       {/* Logo */}
       <div className="p-6 border-b border-slate-200">
-        <Link href="/dashboard" className="flex items-center gap-2">
+        <Link href="/dashboard" className="flex items-center gap-2" onClick={onNavClick}>
           <div className="p-2 rounded-lg bg-green-100">
             <Leaf className="w-5 h-5 text-green-600" />
           </div>
@@ -57,7 +63,7 @@ export default function AppSidebar() {
           const Icon = item.icon
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
           return (
-            <Link key={item.href} href={item.href}>
+            <Link key={item.href} href={item.href} onClick={onNavClick}>
               <Button
                 variant="ghost"
                 className={cn(
@@ -77,7 +83,7 @@ export default function AppSidebar() {
 
       {/* Settings */}
       <div className="p-4 border-t border-slate-200">
-        <Link href="/settings">
+        <Link href="/settings" onClick={onNavClick}>
           <Button
             variant="ghost"
             className={cn(
@@ -92,6 +98,24 @@ export default function AppSidebar() {
           </Button>
         </Link>
       </div>
-    </aside>
+    </>
+  )
+}
+
+export default function AppSidebar({ mobileOpen = false, onMobileClose }: AppSidebarProps) {
+  return (
+    <>
+      {/* Desktop sidebar — always visible on lg+ */}
+      <aside className="hidden lg:flex w-64 bg-white border-r border-slate-200 flex-col shrink-0">
+        <SidebarContent />
+      </aside>
+
+      {/* Mobile sidebar — Sheet drawer */}
+      <Sheet open={mobileOpen} onOpenChange={(open) => !open && onMobileClose?.()}>
+        <SheetContent side="left" className="p-0 w-64 flex flex-col bg-white">
+          <SidebarContent onNavClick={onMobileClose} />
+        </SheetContent>
+      </Sheet>
+    </>
   )
 }
